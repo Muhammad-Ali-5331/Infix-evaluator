@@ -228,3 +228,96 @@ vector<string> collectVars(const vector<Token> &tokens) {
     }
     return vars;
 }
+
+double evaluatePostfix(const vector<Token> &postfix, const map<string, double> &varMap) {
+    stack<double> stk;
+
+    for (const Token &tok : postfix) {
+        if (tok.type == TOK_NUMBER) {
+            stk.push(stod(tok.value));
+        } else if (tok.type == TOK_VARIABLE) {
+            auto it = varMap.find(tok.value);
+            if (it == varMap.end()) {
+                cerr << "Runtime error: no value for variable '" << tok.value << "'\n";
+                exit(2);
+            }
+            stk.push(it->second);
+        } else if (tok.type == TOK_OPERATOR) {
+            if (stk.size() < 2) {
+                cerr << "Runtime error: insufficient operands for operator '" << tok.value << "'\n";
+                exit(2);
+            }
+            double b = stk.top(); stk.pop();
+            double a = stk.top(); stk.pop();
+            if (tok.value == "+") stk.push(a + b);
+            else if (tok.value == "-") stk.push(a - b);
+            else if (tok.value == "*") stk.push(a * b);
+            else if (tok.value == "/") {
+                if (b == 0.0) {
+                    cerr << "Logical error: division by zero\n";
+                    exit(3);
+                }
+                stk.push(a / b);
+            }
+        }
+    }
+    if (stk.size() != 1) {
+        cerr << "Runtime error: malformed expression\n";
+        exit(2);
+    }
+    return stk.top();
+}
+
+string formatResult(double val) {
+    long long iv = (long long)val;
+    if ((double)iv == val) return to_string(iv);
+    ostringstream oss;
+    oss << val;
+    return oss.str();
+}
+
+int main() {
+    string line;
+    if (!getline(cin, line)) {
+        cerr << "Syntax error: no input provided\n";
+        return 1;
+    }
+
+    // stage 1 – tokenize
+    vector<Token> tokens = tokenize(line);
+
+    // stage 2 – structural validation
+    validateTokens(tokens);
+
+    // stage 3 – convert to postfix
+    vector<Token> postfix = toPostfix(tokens);
+
+    string postfixStr;
+    for (int i = 0; i < (int)postfix.size(); i++) {
+        if (i) postfixStr += ' ';
+        postfixStr += postfix[i].value;
+    }
+
+    // stage 4 – collect variables and prompt user
+    vector<string> vars = collectVars(tokens);
+    map<string, double> varMap;
+
+    for (const string &var : vars) {
+        cerr << "Enter value for " << var << ": ";
+        double val;
+        if (!(cin >> val)) {
+            cerr << "Runtime error: invalid value for variable '" << var << "'\n";
+            return 2;
+        }
+        varMap[var] = val;
+    }
+
+    // stage 5 – evaluate
+    double result = evaluatePostfix(postfix, varMap);
+
+    // output: postfix then result on stdout
+    cout << postfixStr << "\n";
+    cout << formatResult(result) << "\n";
+
+    return 0;
+}
