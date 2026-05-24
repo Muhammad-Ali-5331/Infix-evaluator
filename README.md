@@ -9,7 +9,7 @@ Reads an arithmetic expression in infix notation, converts it to postfix (Revers
 Requires a C++20-capable compiler (GCC 10+ or Clang 12+).
 
 ```bash
-g++ -std=c++20 -o infix-eval main.cpp
+g++ -std=c++20 -o infix-evaluator main.cpp
 ```
 
 ---
@@ -17,7 +17,7 @@ g++ -std=c++20 -o infix-eval main.cpp
 ## Usage
 
 ```bash
-./infix-eval
+./infix-evaluator
 ```
 
 The program reads **one line** from `stdin` — the infix expression — then prompts for variable values on `stderr`. The postfix form and final result are written to `stdout`.
@@ -40,7 +40,7 @@ Operator precedence follows standard arithmetic rules (`*` `/` bind tighter than
 ## Example
 
 ```
-$ ./infix-eval
+$ ./infix-evaluator
 a + b * (c + 2)
 Enter value for a: 3
 Enter value for b: 5
@@ -52,7 +52,7 @@ a b c 2 + * +
 ### With `x` as multiplication sign
 
 ```
-$ ./infix-eval
+$ ./infix-evaluator
 a x (b + c)
 Enter value for a: 2
 Enter value for b: 3
@@ -64,7 +64,7 @@ a b c + *
 ### With negative literals and values
 
 ```
-$ ./infix-eval
+$ ./infix-evaluator
 -3 + a
 Enter value for a: -7
 -3 a +
@@ -90,11 +90,11 @@ All error messages go to `stderr`. Only the postfix string and the final result 
 
 ```bash
 # pipe expression and variable values in one shot
-printf "a + b * (c + 2)\n3\n5\n2\n" | ./infix-eval
+printf "a + b * (c + 2)\n3\n5\n2\n" | ./infix-evaluator
 
 # redirect only stdout to a file (stderr prompts still appear on terminal)
-./infix-eval > result.txt
+./infix-evaluator > result.txt
 
 # suppress prompts entirely and capture only the result
-printf "a x b\n4\n5\n" | ./infix-eval 2>/dev/null
+printf "a x b\n4\n5\n" | ./infix-evaluator 2>/dev/null
 ```
