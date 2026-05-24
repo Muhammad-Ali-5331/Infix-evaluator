@@ -85,16 +85,3 @@ Enter value for a: -7
 All error messages go to `stderr`. Only the postfix string and the final result go to `stdout`, making the program safe for automated testing pipelines.
 
 ---
-
-## Running with I/O redirection
-
-```bash
-# pipe expression and variable values in one shot
-printf "a + b * (c + 2)\n3\n5\n2\n" | ./infix-evaluator
-
-# redirect only stdout to a file (stderr prompts still appear on terminal)
-./infix-evaluator > result.txt
-
-# suppress prompts entirely and capture only the result
-printf "a x b\n4\n5\n" | ./infix-evaluator 2>/dev/null
-```
