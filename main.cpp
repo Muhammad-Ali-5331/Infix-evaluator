@@ -164,3 +164,67 @@ void validateTokens(const vector<Token> &tokens) {
         }
     }
 }
+
+vector<Token> toPostfix(const vector<Token> &tokens) {
+    vector<Token> output;
+    stack<Token> ops;
+
+    for (const Token &tok : tokens) {
+        if (tok.type == TOK_NUMBER || tok.type == TOK_VARIABLE) {
+            output.push_back(tok);
+        } else if (tok.type == TOK_OPERATOR) {
+            while (!ops.empty() && ops.top().type == TOK_OPERATOR &&
+                   precedence(ops.top().value) >= precedence(tok.value)) {
+                output.push_back(ops.top());
+                ops.pop();
+            }
+            ops.push(tok);
+        } else if (tok.type == TOK_LPAREN) {
+            ops.push(tok);
+        } else if (tok.type == TOK_RPAREN) {
+            bool matched = false;
+            while (!ops.empty()) {
+                if (ops.top().type == TOK_LPAREN) {
+                    char open  = ops.top().value[0];
+                    char close = tok.value[0];
+                    if (open != matchingOpen(close)) {
+                        cerr << "Syntax error: mismatched brackets '" << open << "' and '" << close << "'\n";
+                        exit(1);
+                    }
+                    ops.pop();
+                    matched = true;
+                    break;
+                }
+                output.push_back(ops.top());
+                ops.pop();
+            }
+            if (!matched) {
+                cerr << "Syntax error: unmatched closing bracket '" << tok.value << "'\n";
+                exit(1);
+            }
+        }
+    }
+
+    while (!ops.empty()) {
+        if (ops.top().type == TOK_LPAREN) {
+            cerr << "Syntax error: unmatched opening bracket '" << ops.top().value << "'\n";
+            exit(1);
+        }
+        output.push_back(ops.top());
+        ops.pop();
+    }
+
+    return output;
+}
+
+vector<string> collectVars(const vector<Token> &tokens) {
+    vector<string> vars;
+    map<string, bool> seen;
+    for (const Token &t : tokens) {
+        if (t.type == TOK_VARIABLE && !seen[t.value]) {
+            seen[t.value] = true;
+            vars.push_back(t.value);
+        }
+    }
+    return vars;
+}
