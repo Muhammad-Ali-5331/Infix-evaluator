@@ -1,4 +1,4 @@
-# infix-eval
+# Infix-evaluator
 
 Reads an arithmetic expression in infix notation, converts it to postfix (Reverse Polish Notation), prompts the user for the value of each variable, and prints the evaluated result.
 
